@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<htlm>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>States</title>
+    </head>
+    <body>
+        <h1>States</h1>
+        <ul>
+            {% for state in states %}
+            <li>{{ state.id }}: <b>{{ state.name }}</b>
+                <ul>
+                    {% for city in state.cities %}
+                    <li>{{ city.id }}: <b>{{ city.name }}</b></li>
+                </ul>
+            </li>
+        </ul>
+    </body>
+</html>
