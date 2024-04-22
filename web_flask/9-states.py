@@ -1,37 +1,40 @@
 #!/usr/bin/python3
-"""Script that starts a Flask web application."""
-
-from flask import Flask
+"""Starts a Flask web application.
+The application listens on 0.0.0.0, port 5000.
+Routes:
+    /states: HTML page with a list of all State objects.
+    /states/<id>: HTML page displaying the given state with <id>.
+"""
 from models import storage
-from models.state import State
+from flask import Flask
+from flask import render_template
 
 app = Flask(__name__)
 
 
+@app.route("/states", strict_slashes=False)
+def states():
+    """Displays an HTML page with a list of all States.
+    States are sorted by name.
+    """
+    states = storage.all("State")
+    return render_template("9-states.html", state=states)
+
+
+@app.route("/states/<id>", strict_slashes=False)
+def states_id(id):
+    """Displays an HTML page with info about <id>, if it exists."""
+    for state in storage.all("State").values():
+        if state.id == id:
+            return render_template("9-states.html", state=state)
+    return render_template("9-states.html")
+
+
 @app.teardown_appcontext
-def teardown_db(exception):
-    """Teardown method to remove SQLAlchemy Session"""
+def teardown(exc):
+    """Remove the current SQLAlchemy session."""
     storage.close()
 
 
-@app.route('/states', strict_slashes=False)
-def status_list():
-    """DIsplays a HTML page listing all State objects."""
-    state = storage.all(State).values()
-    sorted_states = sorted(state, key=lambda state: state.name)
-    return render_template('9-states.html', states=sorted_states)
-
-
-@app.route('/states/<id>', strict_slashes=False)
-def cities_of_states(id):
-    """Display a HTML page listening all City objects linked to a State"""
-    state = storage.get(State, id)
-    if state:
-        cities = sorted(state.cities, key=lambda city: city.name)
-        return render_template('9-states.html', state=state, cities=cities)
-    else:
-        return render_template('9-states.html', not_found=True)
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
